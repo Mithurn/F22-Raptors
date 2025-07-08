@@ -59,6 +59,9 @@ def ask_crop_doctor(question, language_code="en"):
     try:
         response = requests.post(url, headers=headers, data=json.dumps(body))
         result = response.json()
+        if 'candidates' not in result:
+            print('❌ Gemini API unexpected response:', result)
+            return "⚠️ Sorry, I couldn't get a valid answer from Gemini. Please try again later."
         return result['candidates'][0]['content']['parts'][0]['text']
     except Exception as e:
         print("❌ Gemini API error:", e)
