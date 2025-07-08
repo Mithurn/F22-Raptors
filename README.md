@@ -9,6 +9,8 @@
 Most of these tragedies are caused by **sudden, unexpected crop failures**.  
 Current tools are often too late, unreliable, or require smartphones/literacy — leaving small farmers helpless.
 
+https://timesofindia.indiatimes.com/city/bhubaneswar/farmer-suffers-crop-loss-kills-self-in-jajpur/articleshow/121219672.cms?utm_source=chatgpt.com
+
 ---
 
 ## 💡 Our Mission
