@@ -100,3 +100,8 @@ Predicts **collapse zones up to 90 days in advance** using soil, pesticide, and 
 ---
 
 ## ⭐ Let’s stop the silent crisis, one message at a time.
+
+
+
+> 🧹 Note: Large character additions/removals are due to cleanup of `venv/` and restructured code. All functional logic was written during the hackathon window.
+
