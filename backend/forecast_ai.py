@@ -4,10 +4,10 @@ import datetime
 import os
 from dotenv import load_dotenv
 
-# ✅ Load your .env file
+# Load file
 load_dotenv()
 
-# ✅ Get API key from .env
+#  API key from .env
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 def get_rainfall_mm(region_name):
@@ -54,8 +54,9 @@ def calculate_risk(soil_health, rainfall_mm, gw_status):
     else:
         return "Low", 30
 
+#function to predict collapse risk based on region
 def predict_collapse(region):
-    df = pd.read_csv("backend/datasets/risk_data.csv")  # ✅ Your new CSV path
+    df = pd.read_csv("backend/datasets/risk_data.csv")  # CSV path
     row = df[df["Region"] == region]
     
     if not row.empty:
@@ -69,7 +70,7 @@ def predict_collapse(region):
     else:
         return "Region not found."
 
-# ✅ Quick local test
+# local test
 if __name__ == "__main__":
     print(predict_collapse("Punjab"))
     print(predict_collapse("Tamil Nadu"))
