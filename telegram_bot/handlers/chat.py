@@ -7,6 +7,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")
 
 
 def register(bot, user_languages):
+    @bot.message_handler(func=lambda msg: msg.text.lower() in ["hi", "hello", "hey"])
+    def greet(message: Message):
+        bot.reply_to(message, "👋 Hello! How can I help you with your crops today?")
+
     @bot.message_handler(func=lambda msg: True)
     def chat_with_crop_doctor(message: Message):
         lang = get_user_lang(message.chat.id, user_languages)
