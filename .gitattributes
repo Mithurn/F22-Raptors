@@ -1,0 +1,4 @@
+   map-ui.html linguist-documentation
+   *.html linguist-documentation
+   *.pdf linguist-documentation
+   *.csv linguist-documentation
