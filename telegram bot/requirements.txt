@@ -1,0 +1,4 @@
+pyTelegramBotAPI
+python-dotenv
+inference-sdk 
+nest_asyncio 
