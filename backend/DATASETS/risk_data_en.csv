@@ -1,0 +1,12 @@
+Region,Soil_Health,Groundwater_Status,Overall_Risk,Suggestion
+Punjab,🔴 Bad soil,🔴 Water very low,🔴 High Risk,Try millet or bajra instead of cotton
+Haryana,🔴 Poor soil,🔴 Critical water,🔴 High Risk,Use drip irrigation and grow pulses
+Uttar Pradesh,🟡 Okay soil,🟢 Water fine,🟡 Medium Risk,Grow lentils or short-duration rice
+Maharashtra,🟢 Good soil,🟢 Water good,🟢 Low Risk,Grow cotton or soybean
+Tamil Nadu,🟡 Medium soil,🟢 Water okay,🟡 Medium Risk,Try groundnut or pulses
+Kerala,🟢 Healthy soil,🟢 Water good,🟢 Safe,Best for paddy and spices
+Andhra Pradesh,🟡 Moderate soil,🟡 Water moderate,🟡 Medium Risk,Grow sunflower or jowar
+Gujarat,🟡 Medium soil,🟢 Good water,🟡 Medium Risk,Try millet or peanuts
+Bihar,🟡 Moderate soil,🟡 Water okay,🟡 Medium Risk,Good for dal or maize
+West Bengal,🟢 Good soil,🟢 Water good,🟢 Safe,Grow rice and vegetables
+
