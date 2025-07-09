@@ -33,7 +33,7 @@ def register(bot, user_languages, user_data=None):
         # Prompt for location after language
         bot.send_message(message.chat.id, "📍 Please tell me your farm location (district or region) in the format: Location: <your location>")
 
-    # Accept any text as location if language is set but location is not
+    # Accept any text as location if language is set 
     @bot.message_handler(func=lambda msg: user_data and user_data.get(msg.chat.id, {}).get("language") and not user_data.get(msg.chat.id, {}).get("location") and msg.text and not msg.text.startswith("/"))
     def save_location_onboarding(message: Message):
         location = message.text.strip()
