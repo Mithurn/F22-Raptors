@@ -6,8 +6,9 @@ import pandas as pd
 from telegram_bot.user_persistence import save_user_data
 import telebot.types as types
 from services.lang_utils import get_lang_from_text, set_user_lang
+from fuzzywuzzy import process
 
-def register(bot, user_data=None):
+def register(bot, user_languages, user_data=None):
     @bot.message_handler(commands=['start'])
     def send_welcome(message: Message):
         info = user_data.get(message.chat.id, {}) if user_data else {}
@@ -40,23 +41,25 @@ def register(bot, user_data=None):
         csv_path = f"backend/DATASETS/risk_data_{lang}.csv"
         try:
             df = pd.read_csv(csv_path)
-            regions = df["Region"].astype(str).str.lower().tolist()
+            regions = df["Region"].astype(str).tolist()
+            regions_norm = [r.strip().lower() for r in regions]
         except Exception as e:
             bot.reply_to(message, "❌ Could not load region data. Please try again later.")
             print(f"CSV load error: {e}")
             return
-        if location.lower() not in regions:
-            sample = ', '.join(df["Region"].astype(str).tolist()[:5])
-            bot.reply_to(message, f"❌ Location not found. Available regions include: {sample} ...")
-            return
-        if user_data is not None:
-            user_data[message.chat.id] = user_data.get(message.chat.id, {})
-            user_data[message.chat.id]["location"] = location
-            user_data[message.chat.id]["alerts"] = True  # Enable alerts only after location is set
-            save_user_data(user_data)
-        bot.reply_to(message, f"✅ Location saved as: {location}")
-        # Show help after both language and location are set
-        help_msg = """
+        # Fuzzy match
+        match, score = process.extractOne(location.lower(), regions_norm)
+        if score >= 80:
+            idx = regions_norm.index(match)
+            canonical_region = regions[idx]
+            if user_data is not None:
+                user_data[message.chat.id] = user_data.get(message.chat.id, {})
+                user_data[message.chat.id]["location"] = canonical_region
+                user_data[message.chat.id]["alerts"] = True  # Enable alerts only after location is set
+                save_user_data(user_data)
+            bot.reply_to(message, f"✅ Location saved as: {canonical_region}")
+            # Show help after both language and location are set
+            help_msg = """
 *How to use this bot:*
 
 1️⃣ /start — Begin and set up your profile
@@ -72,38 +75,51 @@ def register(bot, user_data=None):
 _I support English, Hindi, Tamil, Telugu, and Bengali._
 If you need help, just type /help anytime!
 """
-        sent = bot.send_message(message.chat.id, help_msg, parse_mode="Markdown")
-        try:
-            bot.pin_chat_message(message.chat.id, sent.message_id)
-        except Exception as e:
-            print(f"Could not pin help message: {e}")
+            sent = bot.send_message(message.chat.id, help_msg, parse_mode="Markdown")
+            try:
+                bot.pin_chat_message(message.chat.id, sent.message_id)
+            except Exception as e:
+                print(f"Could not pin help message: {e}")
+        else:
+            idx = regions_norm.index(match)
+            suggestion = regions[idx]
+            bot.reply_to(message, f"❌ Location not found. Did you mean: {suggestion}? Available regions include: {', '.join(regions[:5])} ...")
+            return
 
     # Accept any text as location after /location command
-    @bot.message_handler(func=lambda msg: user_data and user_data.get(msg.chat.id, {}).get("language") and msg.text and user_data.get(msg.chat.id, {}).get("location") and not msg.text.startswith("/"))
+    @bot.message_handler(func=lambda msg: hasattr(msg, 'reply_to_message') and msg.reply_to_message and msg.reply_to_message.text and ("farm location" in msg.reply_to_message.text or "Location:" in msg.reply_to_message.text))
     def update_location(message: Message):
         location = message.text.strip()
         lang = user_data[message.chat.id]["language"]
         csv_path = f"backend/DATASETS/risk_data_{lang}.csv"
         try:
             df = pd.read_csv(csv_path)
-            regions = df["Region"].astype(str).str.lower().tolist()
+            regions = df["Region"].astype(str).tolist()
+            regions_norm = [r.strip().lower() for r in regions]
         except Exception as e:
             bot.reply_to(message, "❌ Could not load region data. Please try again later.")
             print(f"CSV load error: {e}")
             return
-        if location.lower() not in regions:
-            sample = ', '.join(df["Region"].astype(str).tolist()[:5])
-            bot.reply_to(message, f"❌ Location not found. Available regions include: {sample} ...")
+        # Fuzzy match
+        match, score = process.extractOne(location.lower(), regions_norm)
+        if score >= 80:
+            idx = regions_norm.index(match)
+            canonical_region = regions[idx]
+            if user_data is not None:
+                user_data[message.chat.id]["location"] = canonical_region
+                save_user_data(user_data)
+            bot.reply_to(message, f"✅ Location updated to: {canonical_region}")
+        else:
+            idx = regions_norm.index(match)
+            suggestion = regions[idx]
+            bot.reply_to(message, f"❌ Location not found. Did you mean: {suggestion}? Available regions include: {', '.join(regions[:5])} ...")
             return
-        if user_data is not None:
-            user_data[message.chat.id]["location"] = location
-            save_user_data(user_data)
-        bot.reply_to(message, f"✅ Location updated to: {location}")
 
     # Block all other actions until setup is complete
     @bot.message_handler(func=lambda msg: not (user_data and user_data.get(msg.chat.id, {}).get("language") and user_data.get(msg.chat.id, {}).get("location")))
     def block_until_setup(message: Message):
         info = user_data.get(message.chat.id, {}) if user_data else {}
+        print(f"[DEBUG] block_until_setup triggered for chat_id={message.chat.id}, info={info}")
         if not info.get("language"):
             kb = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
             kb.add("English", "हिन्दी", "தமிழ்", "తెలుగు", "বাংলা")
@@ -176,7 +192,10 @@ If you need help, just type /help anytime!
             csv_path = f"backend/DATASETS/risk_data_{lang}.csv"
             try:
                 df = pd.read_csv(csv_path)
-                row = df[df["Region"] == location]
+                # Normalize both user location and region names for comparison
+                user_loc_norm = location.strip().lower()
+                df["Region_norm"] = df["Region"].astype(str).str.strip().str.lower()
+                row = df[df["Region_norm"] == user_loc_norm]
                 if not row.empty:
                     risk = row.iloc[0]["Overall_Risk"]
                     suggestion = row.iloc[0]["Suggestion"]
@@ -186,8 +205,3 @@ If you need help, just type /help anytime!
             except Exception as e:
                 print(f"Alert error for user {user_id}: {e}")
         bot.reply_to(message, f"✅ Sent alerts to {count} users.")
-
-    # Catch-all handler for unknown commands or messages
-    @bot.message_handler(func=lambda msg: msg.text and not msg.text.startswith('/'))
-    def unknown_command(message: Message):
-        bot.reply_to(message, "❓ Sorry, I didn’t understand that. Type /help for a list of commands.")
