@@ -18,7 +18,6 @@ user_data = {}
 if os.path.exists(user_data_path):
     with open(user_data_path, 'r') as f:
         user_data = json.load(f)
-    # Disable alerts for all users on startup
     for user in user_data.values():
         user["alerts"] = False
     print(f"[DEBUG] Loaded user_data at startup: {user_data}")
@@ -28,19 +27,16 @@ else:
 bot = TeleBot(os.getenv("BOT_TOKEN"))
 user_languages = {}
 
-# Register handlers with shared user_data
 def register_all_handlers():
     start.register(bot, user_languages, user_data)
     language.register(bot, user_languages, user_data)
-    photo.register(bot, user_languages)
-    chat.register(bot, user_languages)
+photo.register(bot, user_languages)
+chat.register(bot, user_languages)
 
 register_all_handlers()
 
-# Track last alert time 
 last_alert_time = {}
 
-# Background alert 
 def alert_sender():
     while True:
         now = time.time()
@@ -58,7 +54,7 @@ def alert_sender():
             csv_path = f"backend/DATASETS/risk_data_{lang}.csv"
             try:
                 df = pd.read_csv(csv_path)
-                # Normalize both user location and region names for comparison
+                
                 user_loc_norm = location.strip().lower()
                 df["Region_norm"] = df["Region"].astype(str).str.strip().str.lower()
                 row = df[df["Region_norm"] == user_loc_norm]
@@ -68,7 +64,7 @@ def alert_sender():
                     msg = f"⚠️ Alert for {location}:\nRisk: {risk}\nAdvice: {suggestion}"
                     bot.send_message(user_id, msg)
                     last_alert_time[user_id] = now
-                    # Flag farmer and notify admin if risk is present
+                    # Flag farmer and notify admin 
                     if str(risk).lower() not in ["none", "low", "0", "no risk"]:
                         info["flagged"] = True
                         save_user_data(user_data)
@@ -101,7 +97,7 @@ def start_alerts(message):
     save_user_data(user_data)
     bot.reply_to(message, "✅ You will now receive automatic alerts for your farm location.")
 
-# Handler to set alert frequency for a user
+# Handler to set alert frequency 
 @bot.message_handler(commands=['alertfrequency'])
 def set_alert_frequency(message):
     try:
