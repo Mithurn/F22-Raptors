@@ -22,4 +22,5 @@ def register(bot, user_languages, user_data=None):
         if user_data is not None:
             user_data[message.chat.id] = user_data.get(message.chat.id, {})
             user_data[message.chat.id]["language"] = lang_code
+            user_data[message.chat.id]["onboarded"] = False  # Force onboarding to resume if language is changed
         bot.send_message(message.chat.id, f"✅ Language set to {message.text}")
