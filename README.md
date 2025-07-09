@@ -9,6 +9,8 @@
 Most of these tragedies are caused by **sudden, unexpected crop failures**.  
 Current tools are often too late, unreliable, or require smartphones/literacy — leaving small farmers helpless.
 
+https://timesofindia.indiatimes.com/city/bhubaneswar/farmer-suffers-crop-loss-kills-self-in-jajpur/articleshow/121219672.cms?utm_source=chatgpt.com
+
 ---
 
 ## 💡 Our Mission
@@ -53,7 +55,11 @@ Predicts crop collapse zones **90 days in advance** using environmental trends.
 3. 📩 Farmers receive tailored advice, and high-risk cases alert NGOs instantly.
 
 ---
+## Demo for our feature 1
+video: https://drive.google.com/file/d/1tATjQ9KV7t_7JuyeMmDC2NAQiapl2oGu/view?usp=share_link
 
+ppt: https://drive.google.com/file/d/1b30RHixn48HjuoLmMfwzn3TzkjNOg501/view?usp=share_link
+---
 ## 🛠️ Tech Stack & APIs
 
 ### 💻 Backend
