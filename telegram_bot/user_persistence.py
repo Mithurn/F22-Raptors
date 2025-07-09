@@ -15,12 +15,10 @@ def clean_user_data_file():
         return
     with open(user_data_path, 'r') as f:
         raw = f.read()
-    # Find all user ids and their last occurrence
     matches = list(re.finditer(r'"(\d+)":', raw))
     last_occurrence = collections.OrderedDict()
     for m in matches:
         last_occurrence[m.group(1)] = m.start()
-    # Build a new dict with only the last occurrence for each user
     try:
         data = json.loads(raw)
     except Exception as e:

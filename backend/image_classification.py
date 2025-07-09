@@ -44,12 +44,12 @@ REMEDIES = {
         "bn": "কোনও সমস্যা পাওয়া যায়নি। সঠিক জলসেচ ও সার প্রয়োগ বজায় রাখুন।"
     },
     "k_deficiency": {
-        "en": "Apply potassium-rich fertilizer. Avoid overwatering.",
-        "hi": "पोटैशियम युक्त उर्वरक डालें। अधिक पानी से बचें।",
-        "ta": "பொட்டாசியம் நிறைந்த உரம் இடவும். அதிகமாக நீர் ஊற்ற வேண்டாம்.",
-        "te": "పొటాషియం అధికంగా ఉన్న ఎరువులను వాడండి. ఎక్కువ నీరు పోయడం నివారించండి.",
-        "bn": "পটাশিয়াম-সমৃদ্ধ সার প্রয়োগ করুন। অতিরিক্ত জল দেওয়া এড়িয়ে চলুন।"
-    }
+    "en": "Apply potassium-rich fertilizer. Avoid overwatering.",
+    "hi": "पोटैशियम युक्त उर्वरक डालें। अधिक पानी से बचें।",
+    "ta": "பொட்டாசியம் நிறைந்த உரம் இடவும். அதிகமாக நீர் ஊற்ற வேண்டாம்.",
+    "te": "పొటాషియం అధికంగా ఉన్న ఎరువులను వాడండి. ఎక్కువ నీరు పోయడం నివారించండి.",
+    "bn": "পটাশিয়াম-সমৃদ্ধ সার প্রয়োগ করুন। অতিরিক্ত জল দেওয়া এড়িয়ে চলুন।"
+}
 }
 
 # Disease name translations
@@ -122,7 +122,7 @@ def detect_crop_disease(image_path, lang_code="en"):
             print(f"Roboflow label: '{label}', lang_code: '{lang_code}'")
             print(f"DISEASE_NAMES.get(label): {DISEASE_NAMES.get(label)}")
 
-            # Get disease name in user's language, fallback to English
+            # Get disease name in user's language or fallback to English
             disease_name = DISEASE_NAMES.get(label, {}).get(lang_code, label)
 
             remedy_text = REMEDIES.get(label, {}).get(lang_code)

@@ -39,16 +39,16 @@ def ask_crop_doctor(question, language_code="en"):
         )
     else:
         prompt = (
-            f"You are an experienced, friendly crop doctor giving advice to a farmer.\n"
-            f"Respond in this language: {full_lang}.\n"
-            f"- Use only 3 to 5 short, clear bullet points.\n"
-            f"- Do not add greetings, intros, or explanations.\n"
-            f"- Each point should be simple, practical, and helpful.\n"
-            f"- Avoid technical terms or long sentences.\n"
-            f"- Add emojis if helpful.\n"
-            f"\n"
-            f"Farmer's question: {question}"
-        )
+        f"You are an experienced, friendly crop doctor giving advice to a farmer.\n"
+        f"Respond in this language: {full_lang}.\n"
+        f"- Use only 3 to 5 short, clear bullet points.\n"
+        f"- Do not add greetings, intros, or explanations.\n"
+        f"- Each point should be simple, practical, and helpful.\n"
+        f"- Avoid technical terms or long sentences.\n"
+        f"- Add emojis if helpful.\n"
+        f"\n"
+        f"Farmer's question: {question}"
+    )
 
     body = {
         "contents": [
