@@ -17,16 +17,12 @@ user_data = {}
 
 last_alert_time = {}
 
-# Define ADMIN_USER_ID at the top so it is available everywhere
 ADMIN_USER_ID = int(os.getenv('ADMIN_USER_ID'))
 
-# Load user_data from file if it exists
 if os.path.exists(user_data_path):
     with open(user_data_path, 'r') as f:
         user_data = json.load(f)
     print(f"[DEBUG] Loaded user_data at startup: {user_data}")
-    # Migration: ensure last_alert_time is set for all users with alerts and location
-    import time
     for user_id, info in user_data.items():
         if info.get("alerts", False) and info.get("location") and last_alert_time.get(user_id) is None:
             last_alert_time[user_id] = time.time() + 30
@@ -37,7 +33,6 @@ else:
 bot = TeleBot(os.getenv("BOT_TOKEN"))
 user_languages = {}
 
-
 def register_all_handlers():
     start.register(bot, user_languages, user_data)
     language.register(bot, user_languages, user_data)
@@ -46,34 +41,28 @@ def register_all_handlers():
 
 register_all_handlers()
 
-
 def alert_sender():
+    global user_data
     while True:
-        # Always reload user_data from disk to get the latest state
-        global user_data
         try:
-            with open(user_data_path, 'r') as f:
-                user_data = json.load(f)
-        except Exception as e:
-            logging.error(f"Failed to reload user_data: {e}")
+    with open(user_data_path, 'r') as f:
+        user_data = json.load(f)
+    except Exception as e:
+    logging.error(f"Could not reload user_data: {e}")
+
         now = time.time()
         for user_id, info in user_data.items():
-            # SKIP admin for region alerts
             if str(user_id) == str(ADMIN_USER_ID):
                 continue
-            # Only send if alerts are enabled for this user
             if not info.get("alerts", True):
                 continue
             lang = info.get("language", "en")
             location = info.get("location")
             if not location:
                 continue
-            # Default alert frequency is 10 seconds
             frequency = info.get("alert_frequency", 10)
-            # Ensure last_alert_time is set 30 seconds after onboarding
             last_time = last_alert_time.get(user_id)
             if last_time is None:
-                # Set last_alert_time to now + 30 seconds after onboarding
                 last_alert_time[user_id] = now + 30
                 continue
             if now - last_time < frequency:
@@ -85,8 +74,6 @@ def alert_sender():
                 df["Region_norm"] = df["Region"].astype(str).str.strip().str.lower()
                 row = df[df["Region_norm"] == user_loc_norm]
                 if not row.empty:
-                    soil = row.iloc[0]["Soil_Health"]
-                    water = row.iloc[0]["Groundwater_Status"]
                     risk = row.iloc[0]["Overall_Risk"]
                     suggestion = row.iloc[0]["Suggestion"]
                     region = row.iloc[0]["Region"]
@@ -99,9 +86,7 @@ def alert_sender():
                         f"🌱 *Precautions:*\n{precautions_text}\n\n"
                         f"Please take these steps to protect your crops. For more advice, use /help or ask a question anytime!"
                     )
-                    # Send alert to farmer
                     bot.send_message(user_id, msg, parse_mode="Markdown")
-                    # Send same alert to admin
                     try:
                         bot.send_message(ADMIN_USER_ID, f"[Farmer {user_id}]\n" + msg, parse_mode="Markdown")
                     except Exception as e:
@@ -110,13 +95,6 @@ def alert_sender():
             except Exception as e:
                 logging.error(f"Alert error for user {user_id}: {e}")
         time.sleep(1)
-
-# Start alert sender in background
-if __name__ == "__main__":
-    t = threading.Thread(target=alert_sender, daemon=True)
-    t.start()
-    print("🤖 Bot is polling...")
-    bot.infinity_polling()
 
 # Handler to stop alerts for a user
 @bot.message_handler(commands=['stopalerts'])
@@ -152,7 +130,6 @@ def set_alert_frequency(message):
     except Exception:
         bot.reply_to(message, "⚠️ Sorry, something went wrong. Please try again or type /help.")
 
-
 @bot.message_handler(commands=['broadcast'])
 def broadcast(message):
     if message.from_user.id != ADMIN_USER_ID:
@@ -171,3 +148,9 @@ def broadcast(message):
         except Exception as e:
             print(f"Broadcast error for user {user_id}: {e}")
     bot.reply_to(message, f"✅ Broadcast sent to {count} users.")
+
+if __name__ == "__main__":
+    t = threading.Thread(target=alert_sender, daemon=True)
+    t.start()
+    print("🤖 Bot is polling...")
+    bot.infinity_polling()
