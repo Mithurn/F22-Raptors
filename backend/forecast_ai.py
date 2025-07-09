@@ -4,10 +4,13 @@ import datetime
 import os
 from dotenv import load_dotenv
 
-# Load file
-load_dotenv()
+# Optional import if translation needed later
+# import sys
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# from telegram_bot.services.lang_utils import translate_message
 
-#  API key from .env
+# Load API key
+load_dotenv()
 API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 def get_rainfall_mm(region_name):
@@ -17,61 +20,51 @@ def get_rainfall_mm(region_name):
         data = response.json()
 
         if "rain" in data:
-            rain_mm = data["rain"].get("1h", 0)  # rainfall in last 1 hour
-        else:
-            rain_mm = 0
-
-        return rain_mm
+            return data["rain"].get("1h", 0)
+        return 0
     except Exception as e:
-        print(f"Error getting rainfall for {region_name}: {e}")
+        print(f"Error fetching weather for {region_name}: {e}")
         return 0
 
-def calculate_risk(soil_health, rainfall_mm, gw_status):
-    score = 0
+def predict_collapse(region, lang_code="bn"):  # default to Bengali
+    try:
+        df = pd.read_csv("backend/DATASETS/risk_data_be.csv")
+        df.columns = df.columns.str.strip()
 
-    # Soil health
-    if soil_health == "Poor":
-        score += 2
-    elif soil_health == "Moderate":
-        score += 1
+        row = df[df["Region"].str.strip().str.lower() == region.strip().lower()]
 
-    # Rainfall
-    if rainfall_mm < 5:
-        score += 2
-    elif rainfall_mm < 20:
-        score += 1
+        if not row.empty:
+            soil = row.iloc[0]["Soil_Health"]
+            gw = row.iloc[0]["Groundwater_Status"]
+            risk = row.iloc[0]["Overall_Risk"]
+            suggestion = row.iloc[0]["Suggestion"]
+            rainfall = get_rainfall_mm(region)
+            timestamp = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
 
-    # Groundwater
-    if gw_status == "Critical":
-        score += 2
-    elif gw_status == "Low":
-        score += 1
+            message = (
+                f"📍 এলাকা: {region}\n"
+                f"🧪 মাটির অবস্থা: {soil}\n"
+                f"💧 ভূগর্ভস্থ জল: {gw}\n"
+                f"⚠️ সামগ্রিক ঝুঁকি: {risk}\n"
+                f"🌧️ বৃষ্টিপাত (১ ঘন্টা): {rainfall} mm\n"
+                f"📌 পরামর্শ: {suggestion}\n"
+                f"🕒 সময়: {timestamp}"
+            )
 
-    if score >= 5:
-        return "High", 90
-    elif score >= 3:
-        return "Medium", 60
-    else:
-        return "Low", 30
+            # Optional translation (disabled for now)
+            # if lang_code != "bn":
+            #     message = translate_message(message, lang_code)
 
-#function to predict collapse risk based on region
-def predict_collapse(region):
-    df = pd.read_csv("backend/datasets/risk_data.csv")  # CSV path
-    row = df[df["Region"] == region]
-    
-    if not row.empty:
-        soil = row.iloc[0]["Soil_Health"]
-        gw = row.iloc[0]["GW_Status"]
-        rainfall = get_rainfall_mm(region)
+            return message
 
-        risk, days = calculate_risk(soil, rainfall, gw)
-        current_time = datetime.datetime.now().strftime("%d %b %Y, %H:%M")
-        return f"{region}: Risk {risk}, collapse expected in {days} days (as of {current_time}, real-time rainfall: {rainfall} mm)."
-    else:
-        return "Region not found."
+        else:
+            return f"❌ এলাকা '{region}' পাওয়া যায়নি।"
 
-# local test
+    except Exception as e:
+        return f"❌ ত্রুটি: {e}"
+
+# Run test
 if __name__ == "__main__":
     print(predict_collapse("Punjab"))
-    print(predict_collapse("Tamil Nadu"))
     print(predict_collapse("Kerala"))
+    print(predict_collapse("Bihar"))

@@ -11,7 +11,7 @@ def register(bot, user_languages):
     def greet(message: Message):
         bot.reply_to(message, "👋 Hello! How can I help you with your crops today?")
 
-    @bot.message_handler(func=lambda msg: True)
+    @bot.message_handler(func=lambda msg: msg.text and not msg.text.startswith('/'))
     def chat_with_crop_doctor(message: Message):
         lang = get_user_lang(message.chat.id, user_languages)
         reply = ask_crop_doctor(message.text, lang)
