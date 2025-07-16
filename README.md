@@ -55,7 +55,7 @@ Predicts crop collapse zones **90 days in advance** using environmental trends.
 3. 📩 Farmers receive tailored advice, and high-risk cases alert NGOs instantly.
 
 ---
-## Demo for our feature 1
+## Demo 
 video: https://drive.google.com/file/d/1tATjQ9KV7t_7JuyeMmDC2NAQiapl2oGu/view?usp=share_link
 
 yt: https://youtu.be/mbrtD78GHZs
