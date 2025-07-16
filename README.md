@@ -58,7 +58,11 @@ Predicts crop collapse zones **90 days in advance** using environmental trends.
 ## Demo for our feature 1
 video: https://drive.google.com/file/d/1tATjQ9KV7t_7JuyeMmDC2NAQiapl2oGu/view?usp=share_link
 
+yt: https://youtu.be/mbrtD78GHZs
+
 ppt: https://drive.google.com/file/d/1b30RHixn48HjuoLmMfwzn3TzkjNOg501/view?usp=share_link
+
+presentation: https://drive.google.com/file/d/1CeKlRKrhkfDuEna37e0BLNPAYv_zjpvh/view?usp=share_link
 ---
 ## 🛠️ Tech Stack & APIs
 
